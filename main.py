@@ -35,10 +35,9 @@ class ChatRequest(BaseModel):
 async def proxy_openai_stream(request: ChatRequest) -> AsyncGenerator[str, None]:
     try:
         response = client.chat.completions.create(**request.model_dump(exclude={"stream": True}), stream=True)
-        if request.stream:
-            for chunk in response:
-                yield f"data: {chunk.model_dump_json()}\n\n"
-                await asyncio.sleep(0)
+        for chunk in response:
+            yield f"data: {chunk.model_dump_json()}\n\n"
+            await asyncio.sleep(0)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
